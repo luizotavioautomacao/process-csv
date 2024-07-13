@@ -12,12 +12,12 @@ char *removeQuotes(const char *str)
 
     for (int i = 0; i < length; i++)
     {
-        if (str[i] != '"')
-        { // Skip quotes
+        if (str[i] != '"') // Skip quotes
+        {
             *ptr++ = str[i];
         }
     }
-    *ptr = '\0'; // Null-terminate the new string
+    *ptr = '\0'; // add \o the end of string
 
     return result;
 }
@@ -131,6 +131,57 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
         printf("column selected: %d\n", selected_indices[i]);
     }
 
+    // Process row filters
+    int filter_count = 0;
+    char **filters = split(rowFilterDefinitions, '\n', &filter_count);
+    int *filter_indices = malloc(sizeof(int) * filter_count);
+    char **filter_operators = malloc(sizeof(char *) * filter_count);
+    char **filter_values = malloc(sizeof(char *) * filter_count);
+
+    for (int i = 0; i < filter_count; i++)
+    {
+        printf("\nfilters[i]: %s", filters[i]);
+        char *filter = strdup(filters[i]);
+        printf("\nfilter: %s", filter);
+
+        // Find operator
+        char *operator= NULL;
+        if (strstr(filter, ">="))
+            operator= ">=";
+        else if (strstr(filter, "<="))
+            operator= "<=";
+        else if (strstr(filter, ">"))
+            operator= ">";
+        else if (strstr(filter, "<"))
+            operator= "<";
+        else if (strstr(filter, "="))
+            operator= "=";
+
+        char *header = strtok(filter, "><=");
+        char *value = strtok(NULL, "><=");
+
+        for (int j = 0; j < column_count; j++)
+        {
+            if (strcmp(header, headers[j]) == 0)
+            {
+                filter_indices[i] = j;
+                filter_operators[i] = strdup(operator);
+                filter_values[i] = strdup(value);
+                printf("\nheader: %s", header);
+                printf("\noperator: %s", operator);
+                printf("\nvalue: %s\n", value);
+                break;
+            }
+        }
+        free(filter);
+    }
+
+    for (int i = 0; i < filter_count; i++)
+    {
+        printf("\nfilter_indices: %d", filter_indices[i]);
+        printf("\nfilter_operators: %s", filter_operators[i]);
+        printf("\nfilter_values: %s", filter_values[i]);
+    }
 }
 
 // Process CSV data from a file
