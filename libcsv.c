@@ -23,7 +23,7 @@ char **split(const char *str, char delimiter, int *count)
     return tokens;
 }
 
-// Helper function to free the memory allocated for a Matrix
+// Helper function to free the memory allocated for a Matrix of string
 void freeMatrixMemory(char **matrix)
 {
     for (int i = 0; matrix[i] != NULL; i++)
@@ -53,7 +53,15 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
 
     for (int i = 0; i < line_count; i++)
     {
-        printf("Line %d: %s\n", i + 1, lines[i]);
+        printf("line%d: %s\n", i + 1, lines[i]);
+    }
+
+    int column_count = 0;
+    char **headers = split(lines[0], ',', &column_count);
+
+    for (int i = 0; i < column_count; i++)
+    {
+        printf("headers%d: %s\n", i + 1, headers[i]);
     }
 }
 
