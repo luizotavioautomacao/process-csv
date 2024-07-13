@@ -23,6 +23,16 @@ char **split(const char *str, char delimiter, int *count)
     return tokens;
 }
 
+// Helper function to free the memory allocated for a Matrix
+void freeMatrixMemory(char **matrix)
+{
+    for (int i = 0; matrix[i] != NULL; i++)
+    {
+        free(matrix[i]);
+    }
+    free(matrix);
+}
+
 // Process CSV data given as a string
 void processCsv(const char csv[], const char selectedColumns[], const char rowFilterDefinitions[])
 {
@@ -35,10 +45,16 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
     int line_count = 0;
     char **lines = split(csv, '\n', &line_count);
 
-    for (int i = 0; i < line_count; i++) {
-        printf("Line %d: %s\n", i + 1, lines[i]);
+    if (line_count <= 0)
+    {
+        freeMatrixMemory(lines);
+        return;
     }
 
+    for (int i = 0; i < line_count; i++)
+    {
+        printf("Line %d: %s\n", i + 1, lines[i]);
+    }
 }
 
 // Process CSV data from a file
