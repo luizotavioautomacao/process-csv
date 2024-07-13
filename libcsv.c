@@ -3,6 +3,23 @@
 #include <string.h> // strdup, strtok [manipulação de strings]
 #include "libcsv.h"
 
+// Function to remove quotes from a string
+char *removeQuotes(const char *str) {
+    printf("quotes: %s\n", str);
+    int length = strlen(str);
+    char *result = malloc(length + 1);  // Allocate memory for the new string
+    char *ptr = result;  // Pointer to iterate over the new string
+
+    for (int i = 0; i < length; i++) {
+        if (str[i] != '"') {  // Skip quotes
+            *ptr++ = str[i];
+        }
+    }
+    *ptr = '\0';  // Null-terminate the new string
+
+    return result;
+}
+
 // Helper function to split a string by a delimiter
 char **split(const char *str, char delimiter, int *count)
 {
@@ -13,7 +30,7 @@ char **split(const char *str, char delimiter, int *count)
     while (token != NULL)
     {
         tokens = realloc(tokens, sizeof(char *) * (++num_tokens));
-        tokens[num_tokens - 1] = strdup(token);
+        tokens[num_tokens - 1] = removeQuotes(token);
         token = strtok(NULL, &delimiter);
     }
     tokens = realloc(tokens, sizeof(char *) * (num_tokens + 1));
