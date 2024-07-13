@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  libcsv:
+    container_name: libcsv
+    image: alpine:3.20.1
+    platform: linux/amd64
+    working_dir: /app
+    volumes:
+      - .:/app
+    build:
+       context: .
+       dockerfile: Dockerfile
+    command: /app/test_libcsv
+    environment:
+      - LD_LIBRARY_PATH=/usr/lib
