@@ -33,7 +33,7 @@ int main()
 
     (*processCsv)(csv, selectedColumns, rowFilterDefinitions);
 
-    printf("\nclose .so\n");
+    printf("\n\nclose .so\n");
     // Fecha a biblioteca compartilhada
     dlclose(lib_handle);
 

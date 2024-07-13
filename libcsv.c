@@ -4,18 +4,20 @@
 #include "libcsv.h"
 
 // Function to remove quotes from a string
-char *removeQuotes(const char *str) {
-    printf("quotes: %s\n", str);
+char *removeQuotes(const char *str)
+{
     int length = strlen(str);
-    char *result = malloc(length + 1);  // Allocate memory for the new string
-    char *ptr = result;  // Pointer to iterate over the new string
+    char *result = malloc(length + 1); // Allocate memory for the new string
+    char *ptr = result;                // Pointer to iterate over the new string
 
-    for (int i = 0; i < length; i++) {
-        if (str[i] != '"') {  // Skip quotes
+    for (int i = 0; i < length; i++)
+    {
+        if (str[i] != '"')
+        { // Skip quotes
             *ptr++ = str[i];
         }
     }
-    *ptr = '\0';  // Null-terminate the new string
+    *ptr = '\0'; // Null-terminate the new string
 
     return result;
 }
@@ -75,10 +77,45 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
 
     int column_count = 0;
     char **headers = split(lines[0], ',', &column_count);
+    printf("\n");
 
     for (int i = 0; i < column_count; i++)
     {
         printf("headers%d: %s\n", i + 1, headers[i]);
+    }
+
+    // Determine which columns to select
+    int selected_count = 0;
+    char **selected = split(selectedColumns, ',', &selected_count);
+    int *selected_indices = malloc(sizeof(int) * selected_count);
+
+    for (int i = 0; i < selected_count; i++)
+    {
+        printf("\ncolumn selected%d: %s ", i + 1, selected[i]);
+        // printf("\nselected_indices: %d\n", selected_indices[i]);
+    }
+
+    printf("\n");
+    for (int i = 0; i < selected_count; i++)
+    {
+        for (int j = 0; j < column_count; j++)
+        {
+            if (strcmp(selected[i], headers[j]) == 0)
+            {
+                printf("\nselected: %s", selected[i]);
+                printf("\nheaders: %s", headers[j]);
+                printf("\ni: %d", i);
+                printf("\nj: %d", j);
+                selected_indices[i] = j;
+                break;
+            }
+        }
+    }
+
+    printf("\n");
+    for (int i = 0; i < selected_count; i++)
+    {
+        printf("\ncolumn selected: %d", selected_indices[i]);
     }
 }
 
