@@ -96,27 +96,41 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
     }
 
     printf("\n");
-    for (int i = 0; i < selected_count; i++)
+    if (selected_count > 0)
     {
-        for (int j = 0; j < column_count; j++)
+        for (int i = 0; i < selected_count; i++)
         {
-            if (strcmp(selected[i], headers[j]) == 0)
+            for (int j = 0; j < column_count; j++)
             {
-                printf("\nselected: %s", selected[i]);
-                printf("\nheaders: %s", headers[j]);
-                printf("\ni: %d", i);
-                printf("\nj: %d", j);
-                selected_indices[i] = j;
-                break;
+                if (strcmp(selected[i], headers[j]) == 0)
+                {
+                    printf("\nselected: %s", selected[i]);
+                    printf("\nheaders: %s", headers[j]);
+                    printf("\ni: %d", i);
+                    printf("\nj: %d", j);
+                    selected_indices[i] = j;
+                    break;
+                }
             }
         }
     }
 
-    printf("\n");
+    // If selected column is equal 0, then select all
+    if (selected_count == 0)
+    {
+        selected_indices = realloc(selected_indices, sizeof(int) * column_count);
+        selected_count = column_count;
+        for (int i = 0; i < column_count; i++)
+        {
+            selected_indices[i] = i;
+        }
+    }
+
     for (int i = 0; i < selected_count; i++)
     {
-        printf("\ncolumn selected: %d", selected_indices[i]);
+        printf("column selected: %d\n", selected_indices[i]);
     }
+
 }
 
 // Process CSV data from a file

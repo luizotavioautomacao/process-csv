@@ -28,12 +28,12 @@ int main()
 
     // Usa a função processCsv
     const char csv[] = "co\"l1,col2,c\"ol3,col\"4\n1,2,3,4\n5,6,7,8\n9,10,11,12\n";
-    const char selectedColumns[] = "col1,col3";
+    const char selectedColumns[] = ""; //"col1,col3";
     const char rowFilterDefinitions[] = "col1>2";
 
     (*processCsv)(csv, selectedColumns, rowFilterDefinitions);
 
-    printf("\n\nclose .so\n");
+    printf("\nclose .so\n");
     // Fecha a biblioteca compartilhada
     dlclose(lib_handle);
 
