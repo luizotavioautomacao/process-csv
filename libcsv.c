@@ -2,25 +2,7 @@
 #include <stdlib.h> // malloc, realloc [alocação dinâmica de memória]
 #include <string.h> // strdup, strtok [manipulação de strings]
 #include "libcsv.h"
-
-// Function to remove quotes from a string
-char *removeQuotes(const char *str)
-{
-    int length = strlen(str);
-    char *result = malloc(length + 1); // Allocate memory for the new string
-    char *ptr = result;                // Pointer to iterate over the new string
-
-    for (int i = 0; i < length; i++)
-    {
-        if (str[i] != '"') // Skip quotes
-        {
-            *ptr++ = str[i];
-        }
-    }
-    *ptr = '\0'; // add \o the end of string
-
-    return result;
-}
+#include "src/helpers/remove-quotes.h"
 
 // Helper function to split a string by a delimiter
 char **split(const char *str, char delimiter, int *count)
