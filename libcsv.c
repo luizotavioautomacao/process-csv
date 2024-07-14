@@ -315,7 +315,7 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
         }
         freeMatrixMemory(row);
     }
-    freeMatrixMemory(lines);
+    
     freeMatrixMemory(headers);
     freeMatrixMemory(selecteds);
     freeMatrixMemory(filter_operators);
@@ -328,9 +328,45 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
 // Process CSV data from a file
 void processCsvFile(const char csvFilePath[], const char selectedColumns[], const char rowFilterDefinitions[])
 {
-    // Imprimindo os parâmetros
+    // Printing the parameters
     printf("CSV File Path: %s\n", csvFilePath);
     printf("Selected Columns: %s\n", selectedColumns);
     printf("Row Filter Definitions: %s\n", rowFilterDefinitions);
-    fflush(stdout); // Garante que a saída seja imediatamente escrita no stdout
+    printf("Open file CSV\n");
+    fflush(stdout); // Ensures that output is immediately written to stdout
+
+    FILE *file = fopen(csvFilePath, "r");
+    if (!file)
+    {
+        perror("Failed to open file");
+        return;
+    }
+
+    // Calculate the number of lines
+    int line_count = 0;
+    char ch;
+    while ((ch = fgetc(file)) != EOF)
+    {
+        if (ch == '\n')
+        {
+            line_count++;
+        }
+    }
+    printf("número de linhas: %d\n", line_count);
+
+    fseek(file, 0, SEEK_END);  // move the position of pointer to the end
+    long length = ftell(file); // gets the current position of the pointer, which corresponds to the file size
+    fseek(file, 0, SEEK_SET);  // move the file pointer back to the beginning
+
+    char *buffer = malloc(length + 1); // allocate memory + \o
+    fread(buffer, 1, length, file);    // reads the contents of the file into the buffer
+    buffer[length] = '\0';             // add \o the the end of file for a valid string
+
+    fclose(file); // close file after reading
+
+    processCsv(buffer, selectedColumns, rowFilterDefinitions);
+
+    free(buffer); // free the memory allocated to the buffer
+    printf("Finalizing CSV file\n");
+    fflush(stdout);
 }
