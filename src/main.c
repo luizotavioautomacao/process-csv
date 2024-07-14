@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include "../libcsv.h"
 
+void processCsvFile(const char csvFilePath[], const char selectedColumns[], const char rowFilterDefinitions[]);
+// void processCsv(const char[], const char[], const char[]);
+
 int main()
 {
     void *lib_handle;
@@ -36,6 +39,12 @@ int main()
     printf("\n\nclose .so\n");
     // Closes the shared library
     dlclose(lib_handle);
+
+    printf("\n__________________________________________________________________________________\n");
+
+    printf("\nOpen csv file\n");
+    const char csvFilePath[] = "../../data.csv";
+    processCsvFile(csvFilePath, selectedColumns, rowFilterDefinitions);
 
     return 0;
 }
