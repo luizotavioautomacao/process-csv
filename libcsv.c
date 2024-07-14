@@ -67,11 +67,11 @@ int is_duplicate(char **array, int count, const char *value)
 // Process CSV data given as a string
 void processCsv(const char csv[], const char selectedColumns[], const char rowFilterDefinitions[])
 {
-    // Imprimindo os parâmetros
+    // Printing the parameters
     printf("%s\n", csv);
     printf("Selected Columns: %s\n", selectedColumns);
     printf("Filter: %s\n\n", rowFilterDefinitions);
-    fflush(stdout); // Garante que a saída é imediatamente escrita no stdout
+    fflush(stdout); // Ensures that output is immediately written to stdout
 
     int line_count = 0;
     char **lines = split(csv, '\n', &line_count);
@@ -103,6 +103,8 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
         if (is_duplicate(headers, i, headers[i]))
         {
             fprintf(stderr, "Duplicate column name found: %s\n", headers[i]);
+            freeMatrixMemory(headers);
+            freeMatrixMemory(lines);
             return;
         }
     }
@@ -331,6 +333,14 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
         }
         freeMatrixMemory(row);
     }
+    freeMatrixMemory(lines);
+    freeMatrixMemory(headers);
+    freeMatrixMemory(selecteds);
+    freeMatrixMemory(filter_operators);
+    freeMatrixMemory(filter_values);
+    freeMatrixMemory(filters);
+    free(selected_indice_column);
+    free(filter_indice_column);
 }
 
 // Process CSV data from a file
