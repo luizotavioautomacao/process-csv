@@ -79,6 +79,12 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
     char **headers = split(lines[0], ',', &column_count);
     printf("\n");
 
+    if (column_count > 256)
+    {
+        fputs("This cvs can have a maximum of 256 columns!\n", stderr);
+        return;
+    }
+
     for (int i = 0; i < column_count; i++)
     {
         printf("headers%d: %s\n", i + 1, headers[i]);
