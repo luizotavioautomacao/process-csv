@@ -242,7 +242,7 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
             }
             else if (strcmp(filter_operators[j], ">") == 0)
             {
-                if (atof(value) > atof(filter_values[j]))
+                if (strcmp(value, filter_values[j]) > 0)
                 {
                     printf("\n[>] j: %d filter_indice_column: %d value: %s", j, column_filter, value);
                 }
@@ -254,7 +254,7 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
             }
             else if (strcmp(filter_operators[j], ">=") == 0)
             {
-                if (atof(value) >= atof(filter_values[j]))
+                if (strcmp(value, filter_values[j]) >= 0)
                 {
                     printf("\n[>=] j: %d filter_indice_column: %d value: %s", j, column_filter, value);
                 }
@@ -266,7 +266,7 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
             }
             else if (strcmp(filter_operators[j], "<") == 0)
             {
-                if (atof(value) < atof(filter_values[j]))
+                if (strcmp(value, filter_values[j]) < 0)
                 {
                     printf("\n[<] j: %d filter_indice_column: %d value: %s", j, column_filter, value);
                 }
@@ -278,7 +278,7 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
             }
             else if (strcmp(filter_operators[j], "<=") == 0)
             {
-                if (atof(value) <= atof(filter_values[j]))
+                if (strcmp(value, filter_values[j]) <= 0)
                 {
                     printf("\n[<=] j: %d filter_indice_column: %d value: %s", j, column_filter, value);
                 }
@@ -293,22 +293,19 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
         if (match)
         {
             char **result_value = malloc(selected_count * sizeof(char *));
-
             int result_count = 0;
 
             printf("\n\n");
 
-            printf("\n");
             for (int k = 0; k < selected_count; k++)
             {
                 int column_selected = selected_indice_column[k];
-
                 char *value = row[column_selected];
 
                 int repeat = 0;
                 for (int z = 0; z < result_count; z++)
                 {
-                    if (result_value[z] == value)
+                    if (strcmp(result_value[z], value) == 0)
                     {
                         repeat = 1;
                         break;
@@ -329,6 +326,8 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
                 }
             }
             printf("\n");
+
+            free(result_value);
         }
         freeMatrixMemory(row);
     }
