@@ -169,10 +169,25 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
         printf("\nfilter_indice_column: %d", filter_indice_column[i]);
         printf("\nfilter_operators: %s", filter_operators[i]);
         printf("\nfilter_values: %s\n", filter_values[i]);
-        printf("--#--\n");
+        printf("--#--\n\n");
     }
 
     // Process each row
+
+    // headers
+    for (int k = 0; k < selected_count; k++)
+    {
+        int column_selected = selected_indice_column[k];
+        char *header = headers[column_selected];
+
+        fputs(header, stdout);
+        if (k < selected_count - 1)
+        {
+            fputs(",", stdout);
+        }
+    }
+
+    // values
     for (int i = 0; i < line_count; i++) // don't consider the headers
     {
         int row_count = 0;
@@ -249,18 +264,23 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
 
         if (match)
         {
-            char **result = malloc(selected_count * sizeof(char *));
+            char **result_value = malloc(selected_count * sizeof(char *));
+
             int result_count = 0;
+
             printf("\n\n");
+
+            printf("\n");
             for (int k = 0; k < selected_count; k++)
             {
                 int column_selected = selected_indice_column[k];
 
                 char *value = row[column_selected];
+
                 int repeat = 0;
                 for (int z = 0; z < result_count; z++)
                 {
-                    if (result[z] == value)
+                    if (result_value[z] == value)
                     {
                         repeat = 1;
                         break;
@@ -268,15 +288,16 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
                 }
                 if (repeat == 0)
                 {
-                    result[result_count++] = value;
+                    result_value[result_count++] = value;
                 }
             }
+
             for (int y = 0; y < result_count; y++)
             {
-                printf("%s", result[y]);
+                fputs(result_value[y], stdout);
                 if (y < result_count - 1)
                 {
-                    printf(",");
+                    fputs(",", stdout);
                 }
             }
             printf("\n");
