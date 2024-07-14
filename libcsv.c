@@ -86,29 +86,20 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
 
     // Determine which columns to select
     int selected_count = 0;
-    char **selected = split(selectedColumns, ',', &selected_count);
-    int *selected_indices = malloc(sizeof(int) * selected_count);
+    char **selecteds = split(selectedColumns, ',', &selected_count);
+    int *selected_indice_column = malloc(sizeof(int) * selected_count);
 
-    for (int i = 0; i < selected_count; i++)
-    {
-        printf("\ncolumn selected%d: %s ", i + 1, selected[i]);
-        // printf("\nselected_indices: %d\n", selected_indices[i]);
-    }
-
-    printf("\n");
+    printf("\nselected_count: %d \n", selected_count);
     if (selected_count > 0)
     {
         for (int i = 0; i < selected_count; i++)
         {
             for (int j = 0; j < column_count; j++)
             {
-                if (strcmp(selected[i], headers[j]) == 0)
+                if (strcmp(selecteds[i], headers[j]) == 0)
                 {
-                    printf("\nselected: %s", selected[i]);
-                    printf("\nheaders: %s", headers[j]);
-                    printf("\ni: %d", i);
-                    printf("\nj: %d", j);
-                    selected_indices[i] = j;
+                    selected_indice_column[i] = j;
+                    printf("selecteds: %s\n", selecteds[i]);
                     break;
                 }
             }
@@ -118,29 +109,26 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
     // If selected column is equal 0, then select all
     if (selected_count == 0)
     {
-        selected_indices = realloc(selected_indices, sizeof(int) * column_count);
+        printf("select all");
+        selected_indice_column = realloc(selected_indice_column, sizeof(int) * column_count);
         selected_count = column_count;
         for (int i = 0; i < column_count; i++)
         {
-            selected_indices[i] = i;
+            selected_indice_column[i] = i;
         }
-    }
-
-    for (int i = 0; i < selected_count; i++)
-    {
-        printf("column selected: %d\n", selected_indices[i]);
     }
 
     // Process row filters
     int filter_count = 0;
     char **filters = split(rowFilterDefinitions, '\n', &filter_count);
-    int *filter_indices = malloc(sizeof(int) * filter_count);
+    int *filter_indice_column = malloc(sizeof(int) * filter_count);
     char **filter_operators = malloc(sizeof(char *) * filter_count);
     char **filter_values = malloc(sizeof(char *) * filter_count);
 
+    printf("\n");
     for (int i = 0; i < filter_count; i++)
     {
-        printf("\nfilters[i]: %s", filters[i]);
+        // printf("\nfilters[i]: %s", filters[i]);
         char *filter = strdup(filters[i]);
         printf("\nfilter: %s", filter);
 
@@ -164,7 +152,7 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
         {
             if (strcmp(header, headers[j]) == 0)
             {
-                filter_indices[i] = j;
+                filter_indice_column[i] = j;
                 filter_operators[i] = strdup(operator);
                 filter_values[i] = strdup(value);
                 printf("\nheader: %s", header);
@@ -178,9 +166,122 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
 
     for (int i = 0; i < filter_count; i++)
     {
-        printf("\nfilter_indices: %d", filter_indices[i]);
+        printf("\nfilter_indice_column: %d", filter_indice_column[i]);
         printf("\nfilter_operators: %s", filter_operators[i]);
-        printf("\nfilter_values: %s", filter_values[i]);
+        printf("\nfilter_values: %s\n", filter_values[i]);
+        printf("--#--\n");
+    }
+
+    // Process each row
+    for (int i = 0; i < line_count; i++) // don't consider the headers
+    {
+        int row_count = 0;
+        char **row = split(lines[i], ',', &row_count);
+        int match = 1;
+        printf("\ni: %d", i);
+
+        for (int j = 0; j < filter_count; j++)
+        {
+            int column_filter = filter_indice_column[j];
+            char *value = row[column_filter];
+
+            if (strcmp(filter_operators[j], "=") == 0)
+            {
+                if (strcmp(value, filter_values[j]) == 0)
+                {
+                    printf("\n[=] j: %d filter_indice_column: %d value: %s", j, column_filter, value);
+                }
+                else
+                {
+                    match = 0;
+                    break;
+                }
+            }
+            else if (strcmp(filter_operators[j], ">") == 0)
+            {
+                if (atof(value) > atof(filter_values[j]))
+                {
+                    printf("\n[>] j: %d filter_indice_column: %d value: %s", j, column_filter, value);
+                }
+                else
+                {
+                    match = 0;
+                    break;
+                }
+            }
+            else if (strcmp(filter_operators[j], ">=") == 0)
+            {
+                if (atof(value) >= atof(filter_values[j]))
+                {
+                    printf("\n[>=] j: %d filter_indice_column: %d value: %s", j, column_filter, value);
+                }
+                else
+                {
+                    match = 0;
+                    break;
+                }
+            }
+            else if (strcmp(filter_operators[j], "<") == 0)
+            {
+                if (atof(value) < atof(filter_values[j]))
+                {
+                    printf("\n[<] j: %d filter_indice_column: %d value: %s", j, column_filter, value);
+                }
+                else
+                {
+                    match = 0;
+                    break;
+                }
+            }
+            else if (strcmp(filter_operators[j], "<=") == 0)
+            {
+                if (atof(value) <= atof(filter_values[j]))
+                {
+                    printf("\n[<=] j: %d filter_indice_column: %d value: %s", j, column_filter, value);
+                }
+                else
+                {
+                    match = 0;
+                    break;
+                }
+            }
+        }
+
+        if (match)
+        {
+            char **result = malloc(selected_count * sizeof(char *));
+            int result_count = 0;
+            printf("\n\n");
+            for (int k = 0; k < selected_count; k++)
+            {
+                int column_selected = selected_indice_column[k];
+
+                char *value = row[column_selected];
+                int repeat = 0;
+                for (int z = 0; z < result_count; z++)
+                {
+                    if (result[z] == value)
+                    {
+                        repeat = 1;
+                        break;
+                    }
+                }
+                if (repeat == 0)
+                {
+                    result[result_count++] = value;
+                }
+            }
+            for (int y = 0; y < result_count; y++)
+            {
+                printf("%s", result[y]);
+                if (y < result_count - 1)
+                {
+                    printf(",");
+                }
+            }
+            printf("\n");
+        }
+        freeMatrixMemory(row);
     }
 }
 
