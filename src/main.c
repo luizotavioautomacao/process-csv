@@ -1,6 +1,6 @@
+#include <dlfcn.h> // Library to load shared libraries dynamically
 #include <stdio.h>
 #include "../libcsv.h"
-#include <dlfcn.h> // Biblioteca para carregar bibliotecas compartilhadas dinamicamente
 
 int main()
 {
@@ -9,7 +9,7 @@ int main()
     char *error;
 
     printf("open .so\n\n");
-    // Carrega a biblioteca compartilhada
+    // Load the shared library
     lib_handle = dlopen("./libcsv.so", RTLD_LAZY);
     if (!lib_handle)
     {
@@ -17,7 +17,7 @@ int main()
         return 1;
     }
 
-    // Carrega o símbolo da função processCsv
+    // Loads the processCsv function symbol
     processCsv = dlsym(lib_handle, "processCsv");
     if ((error = dlerror()) != NULL)
     {
@@ -26,15 +26,15 @@ int main()
         return 1;
     }
 
-    // Usa a função processCsv
-    const char csv[] = "co\"l1,col2,c\"ol3,col\"4\n1,2,3,4\n5,6,7,8\n9,10,11,12\n";
-    const char selectedColumns[] = ""; //"col1,col3";
-    const char rowFilterDefinitions[] = "col1>=2\ncol4=12";
+    // Use the processCsv function
+    const char csv[] = "co\"l1,col2,c\"ol3,col\"4,col5,col6,col7\nl1c1,l1c2,l1c3,l1c4,l1c5,l1c6,l1c7\nl1c1,l1c2,l1c3,l1c4,l1c5,l1c6,l1c7\nl2c1,l2c2,l2c3,l2c4,l2c5,l2c6,l2c7\nl3c1,l3c2,l3c3,l3c4,l3c5,l3c6,l3c7\n";
+    const char selectedColumns[] = "col1,col3,col4,col7";
+    const char rowFilterDefinitions[] = "col1>l1c1\ncol3>l1c3";
 
     (*processCsv)(csv, selectedColumns, rowFilterDefinitions);
 
     printf("\n\nclose .so\n");
-    // Fecha a biblioteca compartilhada
+    // Closes the shared library
     dlclose(lib_handle);
 
     return 0;
