@@ -52,6 +52,18 @@ void freeMatrixMemory(char **matrix)
     free(matrix);
 }
 
+int is_duplicate(char **array, int count, const char *value)
+{
+    for (int i = 0; i < count; i++)
+    {
+        if (strcmp(array[i], value) == 0)
+        {
+            return 1; // duplicate value found
+        }
+    }
+    return 0; // no value found
+}
+
 // Process CSV data given as a string
 void processCsv(const char csv[], const char selectedColumns[], const char rowFilterDefinitions[])
 {
@@ -83,6 +95,16 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
     {
         fputs("This cvs can have a maximum of 256 columns!\n", stderr);
         return;
+    }
+
+    // Verificar se há nomes duplicados nas colunas
+    for (int i = 0; i < column_count; i++)
+    {
+        if (is_duplicate(headers, i, headers[i]))
+        {
+            fprintf(stderr, "Duplicate column name found: %s\n", headers[i]);
+            return;
+        }
     }
 
     for (int i = 0; i < column_count; i++)
