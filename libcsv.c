@@ -7,6 +7,7 @@
 #include "src/helpers/is-array-duplicate.h"
 #include "src/helpers/free-string-array.h"
 #include "src/helpers/handle-error.h"
+#include "src/helpers/read-file-contents.h"
 
 int DEBUG_LOG = 0;
 
@@ -350,53 +351,13 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
 // Process CSV data from a file
 void processCsvFile(const char csvFilePath[], const char selectedColumns[], const char rowFilterDefinitions[])
 {
-    // Printing the parameters
-    if (DEBUG_LOG == 1)
+    char *csv = readFileContents(csvFilePath);
+    if (!csv)
     {
-        printf("CSV File Path: %s\n", csvFilePath);
-        printf("Selected Columns: %s\n", selectedColumns);
-        printf("Row Filter Definitions: %s\n", rowFilterDefinitions);
-        printf("Open file CSV\n");
-        fflush(stdout); // Ensures that output is immediately written to stdout
-    }
-
-    FILE *file = fopen(csvFilePath, "r");
-    if (!file)
-    {
-        perror("Failed to open file");
+        handleError("Failed to read CSV file.\n");
         return;
     }
 
-    // Calculate the number of lines
-    int line_count = 0;
-    char ch;
-    while ((ch = fgetc(file)) != EOF)
-    {
-        if (ch == '\n')
-        {
-            line_count++;
-        }
-    }
-
-    if (DEBUG_LOG == 1)
-        printf("número de linhas: %d\n", line_count);
-
-    fseek(file, 0, SEEK_END);  // move the position of pointer to the end
-    long length = ftell(file); // gets the current position of the pointer, which corresponds to the file size
-    fseek(file, 0, SEEK_SET);  // move the file pointer back to the beginning
-
-    char *buffer = malloc(length + 1); // allocate memory + \o
-    fread(buffer, 1, length, file);    // reads the contents of the file into the buffer
-    buffer[length] = '\0';             // add \o the the end of file for a valid string
-
-    fclose(file); // close file after reading
-
-    processCsv(buffer, selectedColumns, rowFilterDefinitions);
-
-    free(buffer); // free the memory allocated to the buffer
-    if (DEBUG_LOG == 1)
-    {
-        printf("Finalizing CSV file\n");
-        fflush(stdout);
-    }
+    processCsv(csv, selectedColumns, rowFilterDefinitions);
+    free(csv);
 }

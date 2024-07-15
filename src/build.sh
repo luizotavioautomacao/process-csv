@@ -22,8 +22,11 @@ gcc -fPIC -c helpers/free-string-array.c -o free-string-array.o
 # Compile handle-error.c to a shared object
 gcc -fPIC -c helpers/handle-error.c -o handle-error.o
 
+# Compile read-file-contents.c to a shared object
+gcc -fPIC -c helpers/read-file-contents.c -o read-file-contents.o
+
 # Generate a shared library (libcsv.so)
-gcc -shared -o libcsv.so libcsv.o remove-quotes.o split.o is-array-duplicate.o free-string-array.o handle-error.o
+gcc -shared -o libcsv.so libcsv.o remove-quotes.o split.o is-array-duplicate.o free-string-array.o handle-error.o read-file-contents.o
 
 # Link the main object file with the shared library to create the executable
 gcc -o main main.o -L. -lcsv -Wl,-rpath,.
@@ -36,7 +39,7 @@ mv libcsv.so bin/
 mv main bin/
 
 # Clean up object files
-rm main.o libcsv.o remove-quotes.o split.o is-array-duplicate.o free-string-array.o handle-error.o
+rm main.o libcsv.o remove-quotes.o split.o is-array-duplicate.o free-string-array.o handle-error.o read-file-contents.o
 
 # Change directory to /bin
 cd bin || exit
