@@ -10,6 +10,7 @@
 #include "src/helpers/read-file-contents.h"
 #include "src/helpers/process-csv-lines.h"
 #include "src/helpers/process-csv-headers.h"
+#include "src/helpers/process-csv-selected.h"
 
 int DEBUG_LOG = 0;
 
@@ -18,48 +19,7 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
 {
     CsvLines csvLines = processCsvLines(csv);
     CsvHeader csvHeader = processCsvHeaders(csvLines.lines, csvLines.line_count);
-
-    // Determine which columns to select
-    int selected_count = 0;
-    char **selecteds = split(selectedColumns, ',', &selected_count);
-    int *selected_indice_column = malloc(sizeof(int) * selected_count);
-
-    if (DEBUG_LOG == 1)
-    {
-        printf("\nselectedColumns: %s \n", selectedColumns);
-        printf("\nselected_count: %d \n", selected_count);
-    }
-
-    if (selected_count > 0)
-    {
-        for (int i = 0; i < selected_count; i++)
-        {
-            for (int j = 0; j < csvHeader.column_count; j++)
-            {
-                if (strcmp(selecteds[i], csvHeader.headers[j]) == 0)
-                {
-                    selected_indice_column[i] = j;
-                    if (DEBUG_LOG == 1)
-                        printf("selecteds: %s\n", selecteds[i]);
-                    break;
-                }
-            }
-        }
-        freeStringArray(selecteds);
-    }
-
-    // If selected column is equal 0, then select all
-    if (selected_count == 0)
-    {
-        if (DEBUG_LOG == 1)
-            printf("select all");
-        selected_indice_column = realloc(selected_indice_column, sizeof(int) * csvHeader.column_count);
-        selected_count = csvHeader.column_count;
-        for (int i = 0; i < csvHeader.column_count; i++)
-        {
-            selected_indice_column[i] = i;
-        }
-    }
+    CsvSelection csvSelection = processCsvSelected(selectedColumns, csvHeader);
 
     // Process row filters
     int filter_count = 0;
@@ -146,13 +106,13 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
     // Process each row
 
     // headers
-    for (int k = 0; k < selected_count; k++)
+    for (int k = 0; k < csvSelection.selected_count; k++)
     {
-        int column_selected = selected_indice_column[k];
+        int column_selected = csvSelection.selected_indice_column[k];
         char *header = csvHeader.headers[column_selected];
 
         fputs(header, stdout);
-        if (k < selected_count - 1)
+        if (k < csvSelection.selected_count - 1)
         {
             fputs(",", stdout);
         }
@@ -247,15 +207,15 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
 
         if (match)
         {
-            char **result_value = malloc(selected_count * sizeof(char *));
+            char **result_value = malloc(csvSelection.selected_count * sizeof(char *));
             int result_count = 0;
 
             if (DEBUG_LOG == 1)
                 printf("\n\n");
 
-            for (int k = 0; k < selected_count; k++)
+            for (int k = 0; k < csvSelection.selected_count; k++)
             {
-                int column_selected = selected_indice_column[k];
+                int column_selected = csvSelection.selected_indice_column[k];
                 char *value = row[column_selected];
 
                 int repeat = 0;
@@ -293,7 +253,7 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
     freeStringArray(filter_operators);
     // freeStringArray(lines);
     // freeStringArray(filter_values); // error in big matrix ? free(): invalid pointer \n Aborted (core dumped)
-    free(selected_indice_column);
+    free(csvSelection.selected_indice_column);
     free(filter_indice_column);
 }
 

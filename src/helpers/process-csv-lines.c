@@ -10,12 +10,15 @@ CsvLines processCsvLines(const char *csv)
 {
     CsvLines obj;
 
-    int line_count = 0;
+    obj.line_count = 0;
+    obj.lines = NULL;
     obj.lines = split(csv, '\n', &obj.line_count);
 
     if (obj.line_count <= 0)
     {
         freeStringArray(obj.lines);
+        obj.lines = NULL;
+        obj.line_count = 0;
         handleError("Algo aconteceu de errado e não foi possível processar as linhas do CSV.\n");
     }
 
