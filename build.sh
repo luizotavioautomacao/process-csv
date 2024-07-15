@@ -34,13 +34,16 @@ gcc -fPIC -c src/helpers/process-csv-filters.c -o process-csv-filters.o
 # Compile output-csv-headers.c to a shared object
 gcc -fPIC -c src/helpers/output-csv-headers.c -o output-csv-headers.o
 
+# Compile output-csv-values.c to a shared object
+gcc -fPIC -c src/helpers/output-csv-values.c -o output-csv-values.o
+
 # Compile libcsv.c to a shared object
 gcc -fPIC -c libcsv.c -o libcsv.o
 
 # Generate a shared library (libcsv.so)
-gcc -shared -o libcsv.so libcsv.o remove-quotes.o split.o is-array-duplicate.o free-string-array.o handle-error.o read-file-contents.o process-csv-lines.o process-csv-headers.o process-csv-selected.o process-csv-filters.o output-headers.o output-csv-headers.o
+gcc -shared -o libcsv.so libcsv.o remove-quotes.o split.o is-array-duplicate.o free-string-array.o handle-error.o read-file-contents.o process-csv-lines.o process-csv-headers.o process-csv-selected.o process-csv-filters.o output-headers.o output-csv-headers.o output-csv-values.o
 
 # gcc -o test_libcsv test_libcsv.c -L. -lcsv # (test_libcsv is already compiled)
 
 # Clean up object files
-rm libcsv.o remove-quotes.o split.o is-array-duplicate.o free-string-array.o handle-error.o read-file-contents.o process-csv-lines.o process-csv-headers.o process-csv-selected.o process-csv-filters.o output-headers.o output-csv-headers.o
+rm libcsv.o remove-quotes.o split.o is-array-duplicate.o free-string-array.o handle-error.o read-file-contents.o process-csv-lines.o process-csv-headers.o process-csv-selected.o process-csv-filters.o output-headers.o output-csv-headers.o output-csv-values.o
