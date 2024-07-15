@@ -19,11 +19,14 @@ gcc -fPIC -c src/helpers/handle-error.c -o handle-error.o
 # Compile read-file-contents.c to a shared object
 gcc -fPIC -c src/helpers/read-file-contents.c -o read-file-contents.o
 
+# Compile process-csv-lines.c to a shared object
+gcc -fPIC -c src/helpers/process-csv-lines.c -o process-csv-lines.o
+
 # Compile libcsv.c to a shared object
 gcc -fPIC -c libcsv.c -o libcsv.o
 
 # Generate a shared library (libcsv.so)
-gcc -shared -o libcsv.so libcsv.o remove-quotes.o split.o is-array-duplicate.o free-string-array.o handle-error.o read-file-contents.o
+gcc -shared -o libcsv.so libcsv.o remove-quotes.o split.o is-array-duplicate.o free-string-array.o handle-error.o read-file-contents.o process-csv-lines.o
 
 # gcc -o test_libcsv test_libcsv.c -L. -lcsv # (test_libcsv is already compiled)
 

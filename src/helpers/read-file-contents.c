@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-// #include <string.h>
 #include "read-file-contents.h"
 
 extern int DEBUG_LOG; 

@@ -8,43 +8,20 @@
 #include "src/helpers/free-string-array.h"
 #include "src/helpers/handle-error.h"
 #include "src/helpers/read-file-contents.h"
+#include "src/helpers/process-csv-lines.h"
 
 int DEBUG_LOG = 0;
 
 // Process CSV data given as a string
 void processCsv(const char csv[], const char selectedColumns[], const char rowFilterDefinitions[])
 {
-    // Printing the parameters
-    if (DEBUG_LOG == 1)
-    {
-        printf("%s\n", csv);
-        printf("Selected Columns: %s\n", selectedColumns);
-        printf("Filter: %s\n\n", rowFilterDefinitions);
-        fflush(stdout); // Ensures that output is immediately written to stdout
-    }
-
-    int line_count = 0;
-    char **lines = split(csv, '\n', &line_count);
-
-    if (line_count <= 0)
-    {
-        freeStringArray(lines);
-        return;
-    }
-
-    if (DEBUG_LOG == 1)
-    {
-        for (int i = 0; i < line_count; i++)
-        {
-            printf("line%d: %s\n", i + 1, lines[i]);
-        }
-    }
+    CsvLines csvLines = processCsvLines(csv);
 
     int column_count = 0;
-    char **headers = split(lines[0], ',', &column_count);
+    char **headers = split(csvLines.lines[0], ',', &column_count);
 
     if (DEBUG_LOG == 1)
-        printf("\ncolumn: %d\nline: %d\n", column_count, line_count);
+        printf("\ncolumn: %d\nline: %d\n", column_count, csvLines.line_count);
 
     if (column_count > 256)
     {
@@ -59,7 +36,7 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
         {
             fprintf(stderr, "Duplicate column name found: %s\n", headers[i]);
             freeStringArray(headers);
-            freeStringArray(lines);
+            freeStringArray(csvLines.lines);
             return;
         }
     }
@@ -212,10 +189,10 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
     fputs("\n", stdout);
 
     // values
-    for (int i = 0; i < line_count; i++) // don't consider the headers
+    for (int i = 0; i < csvLines.line_count; i++) // don't consider the headers
     {
         int row_count = 0;
-        char **row = split(lines[i], ',', &row_count);
+        char **row = split(csvLines.lines[i], ',', &row_count);
         int match = 1;
 
         if (DEBUG_LOG == 1)
@@ -343,6 +320,7 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
 
     freeStringArray(headers);
     freeStringArray(filter_operators);
+    // freeStringArray(lines);
     // freeStringArray(filter_values); // error in big matrix ? free(): invalid pointer \n Aborted (core dumped)
     free(selected_indice_column);
     free(filter_indice_column);
