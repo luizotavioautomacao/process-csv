@@ -28,8 +28,11 @@ gcc -fPIC -c helpers/read-file-contents.c -o read-file-contents.o
 # Compile process-csv-lines.c to a shared object
 gcc -fPIC -c helpers/process-csv-lines.c -o process-csv-lines.o
 
+# Compile process-csv-headers.c to a shared object
+gcc -fPIC -c helpers/process-csv-headers.c -o process-csv-headers.o
+
 # Generate a shared library (libcsv.so)
-gcc -shared -o libcsv.so libcsv.o remove-quotes.o split.o is-array-duplicate.o free-string-array.o handle-error.o read-file-contents.o process-csv-lines.o
+gcc -shared -o libcsv.so libcsv.o remove-quotes.o split.o is-array-duplicate.o free-string-array.o handle-error.o read-file-contents.o process-csv-lines.o process-csv-headers.o
 
 # Link the main object file with the shared library to create the executable
 gcc -o main main.o -L. -lcsv -Wl,-rpath,.
@@ -42,7 +45,7 @@ mv libcsv.so bin/
 mv main bin/
 
 # Clean up object files
-rm main.o libcsv.o remove-quotes.o split.o is-array-duplicate.o free-string-array.o handle-error.o read-file-contents.o process-csv-lines.o
+rm main.o libcsv.o remove-quotes.o split.o is-array-duplicate.o free-string-array.o handle-error.o read-file-contents.o process-csv-lines.o process-csv-headers.o
 
 # Change directory to /bin
 cd bin || exit

@@ -1,9 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h> 
 #include "handle-error.h"
 
-void handleError(const char *message)
+void handleError(const char *message, ...)
 {
-    fprintf(stderr, "%s", message);
-    exit(EXIT_FAILURE); // ou return um valor de erro, se apropriado
+    va_list args;
+    va_start(args, message);
+    vfprintf(stderr, message, args);
+    va_end(args);
+    exit(EXIT_FAILURE); // close the program
 }

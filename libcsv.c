@@ -9,6 +9,7 @@
 #include "src/helpers/handle-error.h"
 #include "src/helpers/read-file-contents.h"
 #include "src/helpers/process-csv-lines.h"
+#include "src/helpers/process-csv-headers.h"
 
 int DEBUG_LOG = 0;
 
@@ -16,37 +17,7 @@ int DEBUG_LOG = 0;
 void processCsv(const char csv[], const char selectedColumns[], const char rowFilterDefinitions[])
 {
     CsvLines csvLines = processCsvLines(csv);
-
-    int column_count = 0;
-    char **headers = split(csvLines.lines[0], ',', &column_count);
-
-    if (DEBUG_LOG == 1)
-        printf("\ncolumn: %d\nline: %d\n", column_count, csvLines.line_count);
-
-    if (column_count > 256)
-    {
-        fputs("This cvs can have a maximum of 256 columns!\n", stderr);
-        return;
-    }
-
-    // Verificar se há nomes duplicados nas colunas
-    for (int i = 0; i < column_count; i++)
-    {
-        if (isArrayDuplicate(headers, i, headers[i]))
-        {
-            fprintf(stderr, "Duplicate column name found: %s\n", headers[i]);
-            freeStringArray(headers);
-            freeStringArray(csvLines.lines);
-            return;
-        }
-    }
-    if (DEBUG_LOG == 1)
-    {
-        for (int i = 0; i < column_count; i++)
-        {
-            printf("headers%d: %s\n", i + 1, headers[i]);
-        }
-    }
+    CsvHeader csvHeader = processCsvHeaders(csvLines.lines, csvLines.line_count);
 
     // Determine which columns to select
     int selected_count = 0;
@@ -63,9 +34,9 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
     {
         for (int i = 0; i < selected_count; i++)
         {
-            for (int j = 0; j < column_count; j++)
+            for (int j = 0; j < csvHeader.column_count; j++)
             {
-                if (strcmp(selecteds[i], headers[j]) == 0)
+                if (strcmp(selecteds[i], csvHeader.headers[j]) == 0)
                 {
                     selected_indice_column[i] = j;
                     if (DEBUG_LOG == 1)
@@ -82,9 +53,9 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
     {
         if (DEBUG_LOG == 1)
             printf("select all");
-        selected_indice_column = realloc(selected_indice_column, sizeof(int) * column_count);
-        selected_count = column_count;
-        for (int i = 0; i < column_count; i++)
+        selected_indice_column = realloc(selected_indice_column, sizeof(int) * csvHeader.column_count);
+        selected_count = csvHeader.column_count;
+        for (int i = 0; i < csvHeader.column_count; i++)
         {
             selected_indice_column[i] = i;
         }
@@ -129,9 +100,9 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
             filter_operators[i] = NULL;
             filter_values[i] = NULL;
 
-            for (int j = 0; j < column_count; j++)
+            for (int j = 0; j < csvHeader.column_count; j++)
             {
-                if (strcmp(header, headers[j]) == 0)
+                if (strcmp(header, csvHeader.headers[j]) == 0)
                 {
                     filter_indice_column[i] = j;
                     filter_operators[i] = strdup(operator);
@@ -178,7 +149,7 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
     for (int k = 0; k < selected_count; k++)
     {
         int column_selected = selected_indice_column[k];
-        char *header = headers[column_selected];
+        char *header = csvHeader.headers[column_selected];
 
         fputs(header, stdout);
         if (k < selected_count - 1)
@@ -318,7 +289,7 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
         freeStringArray(row);
     }
 
-    freeStringArray(headers);
+    freeStringArray(csvHeader.headers);
     freeStringArray(filter_operators);
     // freeStringArray(lines);
     // freeStringArray(filter_values); // error in big matrix ? free(): invalid pointer \n Aborted (core dumped)
