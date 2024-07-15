@@ -4,24 +4,78 @@
 #include "libcsv.h"
 #include "src/helpers/remove-quotes.h"
 
-// Helper function to split a string by a delimiter
+void handle_error()
+{
+    fprintf(stderr, "Algo aconteceu de errado e não foi possível carregar o CSV, tente novamente!\n");
+    exit(EXIT_FAILURE); // ou retorne um valor de erro, se apropriado
+}
+
 char **split(const char *str, char delimiter, int *count)
 {
-    char *temp = strdup(str);
-    int num_tokens = 0;
-    char **tokens = NULL;
-    char *token = strtok(temp, &delimiter);
-    while (token != NULL)
+    // Check if the string is empty or NULL
+    if (str == NULL || *str == '\0')
     {
-        tokens = realloc(tokens, sizeof(char *) * (++num_tokens));
-        tokens[num_tokens - 1] = removeQuotes(token);
-        token = strtok(NULL, &delimiter);
+        *count = 0;
+        return NULL;
     }
-    tokens = realloc(tokens, sizeof(char *) * (num_tokens + 1));
-    tokens[num_tokens] = NULL;
-    *count = num_tokens;
-    free(temp);
-    return tokens;
+    
+    char **result = 0;
+    size_t count_temp = 0;
+    const char *tmp = str;
+    const char *last_comma = 0;
+    char delim[2];
+    delim[0] = delimiter;
+    delim[1] = 0;
+
+    // Count how many elements will be extracted
+    while (*tmp)
+    {
+        if (delimiter == *tmp)
+        {
+            count_temp++;
+            last_comma = tmp;
+        }
+        tmp++;
+    }
+
+    // Add space for the last element
+    count_temp += last_comma < (str + strlen(str) - 1);
+
+    // Add space for trailing token
+    count_temp++;
+
+    result = malloc(sizeof(char *) * count_temp);
+
+    if (result)
+    {
+        size_t idx = 0;
+        char *str_copy = strdup(str); // Make a copy of the original string
+        if (!str_copy)
+        {
+            // Handle memory allocation failure
+            *count = 0;
+            return NULL;
+        }
+
+        char *token = strtok(str_copy, delim);
+
+        while (token)
+        {
+            // Ensure that we don't exceed the buffer size
+            if (idx < count_temp)
+            {
+                *(result + idx++) = removeQuotes(token); // Use strdup to copy token
+            }
+            token = strtok(0, delim);
+        }
+        *(result + idx) = 0;
+
+        free(str_copy); // Free the temporary copy of the string
+    }
+
+    *count = count_temp - 1;
+
+    return result;
 }
 
 // Helper function to free the memory allocated for a Matrix of string
@@ -71,7 +125,7 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
 
     int column_count = 0;
     char **headers = split(lines[0], ',', &column_count);
-    printf("\n");
+    printf("\ncolumn: %d\nline: %d\n", column_count, line_count);
 
     if (column_count > 256)
     {
@@ -101,6 +155,7 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
     char **selecteds = split(selectedColumns, ',', &selected_count);
     int *selected_indice_column = malloc(sizeof(int) * selected_count);
 
+    printf("\nselectedColumns: %s \n", selectedColumns);
     printf("\nselected_count: %d \n", selected_count);
     if (selected_count > 0)
     {
@@ -116,6 +171,7 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
                 }
             }
         }
+        freeMatrixMemory(selecteds);
     }
 
     // If selected column is equal 0, then select all
@@ -138,50 +194,59 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
     char **filter_values = malloc(sizeof(char *) * filter_count);
 
     printf("\n");
-    for (int i = 0; i < filter_count; i++)
+    if (filter_count > 0)
     {
-        // printf("\nfilters[i]: %s", filters[i]);
-        char *filter = strdup(filters[i]);
-        printf("\nfilter: %s", filter);
 
-        // Find operator
-        char *operator= NULL;
-        if (strstr(filter, ">="))
-            operator= ">=";
-        else if (strstr(filter, "<="))
-            operator= "<=";
-        else if (strstr(filter, ">"))
-            operator= ">";
-        else if (strstr(filter, "<"))
-            operator= "<";
-        else if (strstr(filter, "="))
-            operator= "=";
-
-        char *header = strtok(filter, "><=");
-        char *value = strtok(NULL, "><=");
-
-        for (int j = 0; j < column_count; j++)
+        for (int i = 0; i < filter_count; i++)
         {
-            if (strcmp(header, headers[j]) == 0)
-            {
-                filter_indice_column[i] = j;
-                filter_operators[i] = strdup(operator);
-                filter_values[i] = strdup(value);
-                printf("\nheader: %s", header);
-                printf("\noperator: %s", operator);
-                printf("\nvalue: %s\n", value);
-                break;
-            }
-        }
-        free(filter);
-    }
+            // printf("\nfilters[i]: %s", filters[i]);
+            char *filter = strdup(filters[i]);
+            printf("\nfilter: %s", filter);
 
-    for (int i = 0; i < filter_count; i++)
-    {
-        printf("\nfilter_indice_column: %d", filter_indice_column[i]);
-        printf("\nfilter_operators: %s", filter_operators[i]);
-        printf("\nfilter_values: %s\n", filter_values[i]);
-        printf("--#--\n\n");
+            // Find operator
+            char *operator= NULL;
+            if (strstr(filter, ">="))
+                operator= ">=";
+            else if (strstr(filter, "<="))
+                operator= "<=";
+            else if (strstr(filter, ">"))
+                operator= ">";
+            else if (strstr(filter, "<"))
+                operator= "<";
+            else if (strstr(filter, "="))
+                operator= "=";
+
+            char *header = strtok(filter, "><=");
+            char *value = strtok(NULL, "><=");
+
+            for (int j = 0; j < column_count; j++)
+            {
+                if (strcmp(header, headers[j]) == 0)
+                {
+                    filter_indice_column[i] = j;
+                    filter_operators[i] = strdup(operator);
+                    filter_values[i] = strdup(value);
+                    if (filter_operators[i] == NULL || filter_values[i] == NULL)
+                    {
+                        handle_error();
+                    }
+                    printf("\nheader: %s", header);
+                    printf("\noperator: %s", operator);
+                    printf("\nvalue: %s\n", value);
+                    break;
+                }
+            }
+            free(filter);
+        }
+
+        for (int i = 0; i < filter_count; i++)
+        {
+            printf("\nfilter_indice_column: %d", filter_indice_column[i]);
+            printf("\nfilter_operators: %s", filter_operators[i]);
+            printf("\nfilter_values: %s\n", filter_values[i]);
+            printf("--#--\n\n");
+        }
+        freeMatrixMemory(filters);
     }
 
     // Process each row
@@ -315,14 +380,17 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
         }
         freeMatrixMemory(row);
     }
-    
+
     freeMatrixMemory(headers);
-    freeMatrixMemory(selecteds);
     freeMatrixMemory(filter_operators);
     freeMatrixMemory(filter_values);
-    freeMatrixMemory(filters);
+    // 
     free(selected_indice_column);
     free(filter_indice_column);
+    selected_count = 0;
+    line_count = 0;
+    column_count = 0;
+    filter_count = 0;
 }
 
 // Process CSV data from a file
