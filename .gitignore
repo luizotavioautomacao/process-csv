@@ -5,4 +5,5 @@
 !/src/helpers/
 /.vscode
 *.so
+*.o
 *.csv
