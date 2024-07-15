@@ -80,18 +80,18 @@ char **split(const char *str, char delimiter, int *count)
 }
 
 // Helper function to free the memory allocated for a Matrix of string
-void freeMatrixMemory(char **matrix)
+void freeStringArray(char **array)
 {
-    if (matrix == NULL)
+    if (array == NULL)
     {
         return;
     }
 
-    for (int i = 0; matrix[i] != NULL; i++)
+    for (int i = 0; array[i] != NULL; i++)
     {
-        free(matrix[i]);
+        free(array[i]);
     }
-    free(matrix);
+    free(array);
 }
 
 int is_duplicate(char **array, int count, const char *value)
@@ -123,7 +123,7 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
 
     if (line_count <= 0)
     {
-        freeMatrixMemory(lines);
+        freeStringArray(lines);
         return;
     }
 
@@ -153,8 +153,8 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
         if (is_duplicate(headers, i, headers[i]))
         {
             fprintf(stderr, "Duplicate column name found: %s\n", headers[i]);
-            freeMatrixMemory(headers);
-            freeMatrixMemory(lines);
+            freeStringArray(headers);
+            freeStringArray(lines);
             return;
         }
     }
@@ -192,7 +192,7 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
                 }
             }
         }
-        freeMatrixMemory(selecteds);
+        freeStringArray(selecteds);
     }
 
     // If selected column is equal 0, then select all
@@ -275,7 +275,7 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
             free(filter);
         }
 
-        freeMatrixMemory(filters);
+        freeStringArray(filters);
 
         if (DEBUG_LOG == 1)
         {
@@ -433,12 +433,12 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
 
             free(result_value);
         }
-        freeMatrixMemory(row);
+        freeStringArray(row);
     }
 
-    freeMatrixMemory(headers);
-    freeMatrixMemory(filter_operators);
-    freeMatrixMemory(filter_values); // error in big matrix ? free(): invalid pointer \n Aborted (core dumped)
+    freeStringArray(headers);
+    freeStringArray(filter_operators);
+    // freeStringArray(filter_values); // error in big matrix ? free(): invalid pointer \n Aborted (core dumped)
     free(selected_indice_column);
     free(filter_indice_column);
 }
