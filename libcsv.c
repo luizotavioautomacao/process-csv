@@ -4,6 +4,7 @@
 #include "libcsv.h"
 #include "src/helpers/remove-quotes.h"
 #include "src/helpers/split.h"
+#include "src/helpers/is-array-duplicate.h"
 
 int DEBUG_LOG = 0;
 void handle_error()
@@ -25,18 +26,6 @@ void freeStringArray(char **array)
         free(array[i]);
     }
     free(array);
-}
-
-int is_duplicate(char **array, int count, const char *value)
-{
-    for (int i = 0; i < count; i++)
-    {
-        if (strcmp(array[i], value) == 0)
-        {
-            return 1; // duplicate value found
-        }
-    }
-    return 0; // no value found
 }
 
 // Process CSV data given as a string
@@ -83,7 +72,7 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
     // Verificar se há nomes duplicados nas colunas
     for (int i = 0; i < column_count; i++)
     {
-        if (is_duplicate(headers, i, headers[i]))
+        if (isArrayDuplicate(headers, i, headers[i]))
         {
             fprintf(stderr, "Duplicate column name found: %s\n", headers[i]);
             freeStringArray(headers);
