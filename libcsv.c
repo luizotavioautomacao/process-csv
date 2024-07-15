@@ -4,6 +4,7 @@
 #include "libcsv.h"
 #include "src/helpers/remove-quotes.h"
 
+int DEBUG_LOG = 0;
 void handle_error()
 {
     fprintf(stderr, "Algo aconteceu de errado e não foi possível carregar o CSV, tente novamente!\n");
@@ -18,7 +19,7 @@ char **split(const char *str, char delimiter, int *count)
         *count = 0;
         return NULL;
     }
-    
+
     char **result = 0;
     size_t count_temp = 0;
     const char *tmp = str;
@@ -81,6 +82,11 @@ char **split(const char *str, char delimiter, int *count)
 // Helper function to free the memory allocated for a Matrix of string
 void freeMatrixMemory(char **matrix)
 {
+    if (matrix == NULL)
+    {
+        return;
+    }
+
     for (int i = 0; matrix[i] != NULL; i++)
     {
         free(matrix[i]);
@@ -104,10 +110,13 @@ int is_duplicate(char **array, int count, const char *value)
 void processCsv(const char csv[], const char selectedColumns[], const char rowFilterDefinitions[])
 {
     // Printing the parameters
-    printf("%s\n", csv);
-    printf("Selected Columns: %s\n", selectedColumns);
-    printf("Filter: %s\n\n", rowFilterDefinitions);
-    fflush(stdout); // Ensures that output is immediately written to stdout
+    if (DEBUG_LOG == 1)
+    {
+        printf("%s\n", csv);
+        printf("Selected Columns: %s\n", selectedColumns);
+        printf("Filter: %s\n\n", rowFilterDefinitions);
+        fflush(stdout); // Ensures that output is immediately written to stdout
+    }
 
     int line_count = 0;
     char **lines = split(csv, '\n', &line_count);
@@ -118,14 +127,19 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
         return;
     }
 
-    for (int i = 0; i < line_count; i++)
+    if (DEBUG_LOG == 1)
     {
-        printf("line%d: %s\n", i + 1, lines[i]);
+        for (int i = 0; i < line_count; i++)
+        {
+            printf("line%d: %s\n", i + 1, lines[i]);
+        }
     }
 
     int column_count = 0;
     char **headers = split(lines[0], ',', &column_count);
-    printf("\ncolumn: %d\nline: %d\n", column_count, line_count);
+
+    if (DEBUG_LOG == 1)
+        printf("\ncolumn: %d\nline: %d\n", column_count, line_count);
 
     if (column_count > 256)
     {
@@ -144,10 +158,12 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
             return;
         }
     }
-
-    for (int i = 0; i < column_count; i++)
+    if (DEBUG_LOG == 1)
     {
-        printf("headers%d: %s\n", i + 1, headers[i]);
+        for (int i = 0; i < column_count; i++)
+        {
+            printf("headers%d: %s\n", i + 1, headers[i]);
+        }
     }
 
     // Determine which columns to select
@@ -155,8 +171,12 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
     char **selecteds = split(selectedColumns, ',', &selected_count);
     int *selected_indice_column = malloc(sizeof(int) * selected_count);
 
-    printf("\nselectedColumns: %s \n", selectedColumns);
-    printf("\nselected_count: %d \n", selected_count);
+    if (DEBUG_LOG == 1)
+    {
+        printf("\nselectedColumns: %s \n", selectedColumns);
+        printf("\nselected_count: %d \n", selected_count);
+    }
+
     if (selected_count > 0)
     {
         for (int i = 0; i < selected_count; i++)
@@ -166,7 +186,8 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
                 if (strcmp(selecteds[i], headers[j]) == 0)
                 {
                     selected_indice_column[i] = j;
-                    printf("selecteds: %s\n", selecteds[i]);
+                    if (DEBUG_LOG == 1)
+                        printf("selecteds: %s\n", selecteds[i]);
                     break;
                 }
             }
@@ -177,7 +198,8 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
     // If selected column is equal 0, then select all
     if (selected_count == 0)
     {
-        printf("select all");
+        if (DEBUG_LOG == 1)
+            printf("select all");
         selected_indice_column = realloc(selected_indice_column, sizeof(int) * column_count);
         selected_count = column_count;
         for (int i = 0; i < column_count; i++)
@@ -193,15 +215,17 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
     char **filter_operators = malloc(sizeof(char *) * filter_count);
     char **filter_values = malloc(sizeof(char *) * filter_count);
 
-    printf("\n");
+    if (DEBUG_LOG == 1)
+        printf("\n");
+
     if (filter_count > 0)
     {
-
         for (int i = 0; i < filter_count; i++)
         {
-            // printf("\nfilters[i]: %s", filters[i]);
             char *filter = strdup(filters[i]);
-            printf("\nfilter: %s", filter);
+
+            if (DEBUG_LOG == 1)
+                printf("\nfilter: %s", filter);
 
             // Find operator
             char *operator= NULL;
@@ -219,6 +243,10 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
             char *header = strtok(filter, "><=");
             char *value = strtok(NULL, "><=");
 
+            // Initialize to NULL to handle potential allocation failures
+            filter_operators[i] = NULL;
+            filter_values[i] = NULL;
+
             for (int j = 0; j < column_count; j++)
             {
                 if (strcmp(header, headers[j]) == 0)
@@ -228,25 +256,38 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
                     filter_values[i] = strdup(value);
                     if (filter_operators[i] == NULL || filter_values[i] == NULL)
                     {
+                        free(filter_operators[i]);
+                        free(filter_values[i]);
+                        filter_operators[i] = NULL;
+                        filter_values[i] = NULL;
                         handle_error();
                     }
-                    printf("\nheader: %s", header);
-                    printf("\noperator: %s", operator);
-                    printf("\nvalue: %s\n", value);
+
+                    if (DEBUG_LOG == 1)
+                    {
+                        printf("\nheader: %s", header);
+                        printf("\noperator: %s", operator);
+                        printf("\nvalue: %s\n", value);
+                    }
                     break;
                 }
             }
             free(filter);
         }
 
-        for (int i = 0; i < filter_count; i++)
-        {
-            printf("\nfilter_indice_column: %d", filter_indice_column[i]);
-            printf("\nfilter_operators: %s", filter_operators[i]);
-            printf("\nfilter_values: %s\n", filter_values[i]);
-            printf("--#--\n\n");
-        }
         freeMatrixMemory(filters);
+
+        if (DEBUG_LOG == 1)
+        {
+            for (int i = 0; i < filter_count; i++)
+            {
+                printf("\nfilter_count: %d", filter_count);
+                printf("\nfilter_indice_column[i]: %d", filter_indice_column[i]);
+                printf("\nfilter_operators[i]: %s", filter_operators[i]);
+                printf("\nfilter_values[i]: %s\n", filter_values[i]);
+                printf("--#--\n\n");
+            }
+        }
     }
 
     // Process each row
@@ -263,6 +304,7 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
             fputs(",", stdout);
         }
     }
+    fputs("\n", stdout);
 
     // values
     for (int i = 0; i < line_count; i++) // don't consider the headers
@@ -270,7 +312,9 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
         int row_count = 0;
         char **row = split(lines[i], ',', &row_count);
         int match = 1;
-        printf("\ni: %d", i);
+
+        if (DEBUG_LOG == 1)
+            printf("\ni: %d", i);
 
         for (int j = 0; j < filter_count; j++)
         {
@@ -281,7 +325,8 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
             {
                 if (strcmp(value, filter_values[j]) == 0)
                 {
-                    printf("\n[=] j: %d filter_indice_column: %d value: %s", j, column_filter, value);
+                    if (DEBUG_LOG == 1)
+                        printf("\n[=] j: %d filter_indice_column: %d value: %s", j, column_filter, value);
                 }
                 else
                 {
@@ -291,9 +336,14 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
             }
             else if (strcmp(filter_operators[j], ">") == 0)
             {
+                // printf("\n____________________");
+                // printf("\nvalue: %s", value);
+                // printf("\nfilter_values: %s", filter_values[j]);
+                // printf("\n____________________\n");
                 if (strcmp(value, filter_values[j]) > 0)
                 {
-                    printf("\n[>] j: %d filter_indice_column: %d value: %s", j, column_filter, value);
+                    if (DEBUG_LOG == 1)
+                        printf("\n[>] j: %d filter_indice_column: %d value: %s filter_values[j]: %s", j, column_filter, value, filter_values[j]);
                 }
                 else
                 {
@@ -305,7 +355,8 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
             {
                 if (strcmp(value, filter_values[j]) >= 0)
                 {
-                    printf("\n[>=] j: %d filter_indice_column: %d value: %s", j, column_filter, value);
+                    if (DEBUG_LOG == 1)
+                        printf("\n[>=] j: %d filter_indice_column: %d value: %s", j, column_filter, value);
                 }
                 else
                 {
@@ -317,7 +368,8 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
             {
                 if (strcmp(value, filter_values[j]) < 0)
                 {
-                    printf("\n[<] j: %d filter_indice_column: %d value: %s", j, column_filter, value);
+                    if (DEBUG_LOG == 1)
+                        printf("\n[<] j: %d filter_indice_column: %d value: %s", j, column_filter, value);
                 }
                 else
                 {
@@ -329,7 +381,8 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
             {
                 if (strcmp(value, filter_values[j]) <= 0)
                 {
-                    printf("\n[<=] j: %d filter_indice_column: %d value: %s", j, column_filter, value);
+                    if (DEBUG_LOG == 1)
+                        printf("\n[<=] j: %d filter_indice_column: %d value: %s", j, column_filter, value);
                 }
                 else
                 {
@@ -344,7 +397,8 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
             char **result_value = malloc(selected_count * sizeof(char *));
             int result_count = 0;
 
-            printf("\n\n");
+            if (DEBUG_LOG == 1)
+                printf("\n\n");
 
             for (int k = 0; k < selected_count; k++)
             {
@@ -374,6 +428,7 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
                     fputs(",", stdout);
                 }
             }
+
             printf("\n");
 
             free(result_value);
@@ -383,25 +438,23 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
 
     freeMatrixMemory(headers);
     freeMatrixMemory(filter_operators);
-    freeMatrixMemory(filter_values);
-    // 
+    freeMatrixMemory(filter_values); // error in big matrix ? free(): invalid pointer \n Aborted (core dumped)
     free(selected_indice_column);
     free(filter_indice_column);
-    selected_count = 0;
-    line_count = 0;
-    column_count = 0;
-    filter_count = 0;
 }
 
 // Process CSV data from a file
 void processCsvFile(const char csvFilePath[], const char selectedColumns[], const char rowFilterDefinitions[])
 {
     // Printing the parameters
-    printf("CSV File Path: %s\n", csvFilePath);
-    printf("Selected Columns: %s\n", selectedColumns);
-    printf("Row Filter Definitions: %s\n", rowFilterDefinitions);
-    printf("Open file CSV\n");
-    fflush(stdout); // Ensures that output is immediately written to stdout
+    if (DEBUG_LOG == 1)
+    {
+        printf("CSV File Path: %s\n", csvFilePath);
+        printf("Selected Columns: %s\n", selectedColumns);
+        printf("Row Filter Definitions: %s\n", rowFilterDefinitions);
+        printf("Open file CSV\n");
+        fflush(stdout); // Ensures that output is immediately written to stdout
+    }
 
     FILE *file = fopen(csvFilePath, "r");
     if (!file)
@@ -420,7 +473,9 @@ void processCsvFile(const char csvFilePath[], const char selectedColumns[], cons
             line_count++;
         }
     }
-    printf("número de linhas: %d\n", line_count);
+
+    if (DEBUG_LOG == 1)
+        printf("número de linhas: %d\n", line_count);
 
     fseek(file, 0, SEEK_END);  // move the position of pointer to the end
     long length = ftell(file); // gets the current position of the pointer, which corresponds to the file size
@@ -435,6 +490,9 @@ void processCsvFile(const char csvFilePath[], const char selectedColumns[], cons
     processCsv(buffer, selectedColumns, rowFilterDefinitions);
 
     free(buffer); // free the memory allocated to the buffer
-    printf("Finalizing CSV file\n");
-    fflush(stdout);
+    if (DEBUG_LOG == 1)
+    {
+        printf("Finalizing CSV file\n");
+        fflush(stdout);
+    }
 }
