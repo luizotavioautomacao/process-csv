@@ -43,8 +43,11 @@ gcc -fPIC -c helpers/output-csv-headers.c -o output-csv-headers.o
 # Compile output-csv-values.c to a shared object
 gcc -fPIC -c helpers/output-csv-values.c -o output-csv-values.o
 
+# Compile builder-free-csv.c to a shared object
+gcc -fPIC -c helpers/builder-free-csv.c -o builder-free-csv.o
+
 # Generate a shared library (libcsv.so)
-gcc -shared -o libcsv.so libcsv.o remove-quotes.o split.o is-array-duplicate.o free-string-array.o handle-error.o read-file-contents.o process-csv-lines.o process-csv-headers.o process-csv-selected.o process-csv-filters.o output-csv-headers.o output-csv-values.o
+gcc -shared -o libcsv.so libcsv.o remove-quotes.o split.o is-array-duplicate.o free-string-array.o handle-error.o read-file-contents.o process-csv-lines.o process-csv-headers.o process-csv-selected.o process-csv-filters.o output-csv-headers.o output-csv-values.o builder-free-csv.o
 
 # Link the main object file with the shared library to create the executable
 gcc -o main main.o -L. -lcsv -Wl,-rpath,.
@@ -57,7 +60,7 @@ mv libcsv.so bin/
 mv main bin/
 
 # Clean up object files
-rm main.o libcsv.o remove-quotes.o split.o is-array-duplicate.o free-string-array.o handle-error.o read-file-contents.o process-csv-lines.o process-csv-headers.o process-csv-selected.o process-csv-filters.o output-csv-headers.o output-csv-values.o
+rm main.o libcsv.o remove-quotes.o split.o is-array-duplicate.o free-string-array.o handle-error.o read-file-contents.o process-csv-lines.o process-csv-headers.o process-csv-selected.o process-csv-filters.o output-csv-headers.o output-csv-values.o builder-free-csv.o
 
 # Change directory to /bin
 cd bin || exit

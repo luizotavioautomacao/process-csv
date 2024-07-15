@@ -14,6 +14,7 @@
 #include "src/helpers/process-csv-filters.h"
 #include "src/helpers/output-csv-headers.h"
 #include "src/helpers/output-csv-values.h"
+#include "src/helpers/builder-free-csv.h"
 
 int DEBUG_LOG = 0;
 
@@ -26,13 +27,7 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
     CsvFilter csvFilter = processCsvFilters(rowFilterDefinitions, csvHeader);
     outputCsvHeaders(csvSelection, csvHeader);
     outputCsvValues(csvLines, csvFilter, csvSelection);
-
-    freeStringArray(csvHeader.headers);
-    freeStringArray(csvFilter.filter_operators);
-    // freeStringArray(lines);
-    // freeStringArray(filter_values); // error in big matrix ? free(): invalid pointer \n Aborted (core dumped)
-    free(csvSelection.selected_indice_column);
-    free(csvFilter.filter_indice_column);
+    freeCsvObjects(csvLines, csvHeader, csvFilter, csvSelection);
 }
 
 // Process CSV data from a file
@@ -44,7 +39,6 @@ void processCsvFile(const char csvFilePath[], const char selectedColumns[], cons
         handleError("Failed to read CSV file.\n");
         return;
     }
-
     processCsv(csv, selectedColumns, rowFilterDefinitions);
     free(csv);
 }
