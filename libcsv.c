@@ -12,6 +12,7 @@
 #include "src/helpers/process-csv-headers.h"
 #include "src/helpers/process-csv-selected.h"
 #include "src/helpers/process-csv-filters.h"
+#include "src/helpers/output-csv-headers.h"
 
 int DEBUG_LOG = 0;
 
@@ -22,22 +23,7 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
     CsvHeader csvHeader = processCsvHeaders(csvLines.lines, csvLines.line_count);
     CsvSelection csvSelection = processCsvSelected(selectedColumns, csvHeader);
     CsvFilter csvFilter = processCsvFilters(rowFilterDefinitions, csvHeader);
-
-    // Process each row
-
-    // headers
-    for (int k = 0; k < csvSelection.selected_count; k++)
-    {
-        int column_selected = csvSelection.selected_indice_column[k];
-        char *header = csvHeader.headers[column_selected];
-
-        fputs(header, stdout);
-        if (k < csvSelection.selected_count - 1)
-        {
-            fputs(",", stdout);
-        }
-    }
-    fputs("\n", stdout);
+    outputCsvHeaders(csvSelection, csvHeader);
 
     // values
     for (int i = 0; i < csvLines.line_count; i++) // don't consider the headers
