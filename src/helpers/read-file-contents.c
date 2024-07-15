@@ -3,7 +3,7 @@
 // #include <string.h>
 #include "read-file-contents.h"
 
-int READ_FILE_CONTENTS_DEBUG_LOG = 0;
+extern int DEBUG_LOG; 
 
 char *readFileContents(const char *filePath)
 {
@@ -25,7 +25,7 @@ char *readFileContents(const char *filePath)
         }
     }
 
-    if (READ_FILE_CONTENTS_DEBUG_LOG == 1)
+    if (DEBUG_LOG == 1)
         printf("número de linhas: %d\n", line_count);
 
     fseek(file, 0, SEEK_END);
