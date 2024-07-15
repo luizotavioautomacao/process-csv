@@ -11,3 +11,6 @@ gcc -fPIC -c libcsv.c -o libcsv.o
 gcc -shared -o libcsv.so libcsv.o remove-quotes.o
 
 # gcc -o test_libcsv test_libcsv.c -L. -lcsv # (test_libcsv is already compiled)
+
+# Clean up object files
+rm libcsv.o remove-quotes.o
