@@ -11,6 +11,7 @@
 #include "src/helpers/process-csv-lines.h"
 #include "src/helpers/process-csv-headers.h"
 #include "src/helpers/process-csv-selected.h"
+#include "src/helpers/process-csv-filters.h"
 
 int DEBUG_LOG = 0;
 
@@ -20,88 +21,7 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
     CsvLines csvLines = processCsvLines(csv);
     CsvHeader csvHeader = processCsvHeaders(csvLines.lines, csvLines.line_count);
     CsvSelection csvSelection = processCsvSelected(selectedColumns, csvHeader);
-
-    // Process row filters
-    int filter_count = 0;
-    char **filters = split(rowFilterDefinitions, '\n', &filter_count);
-    int *filter_indice_column = malloc(sizeof(int) * filter_count);
-    char **filter_operators = malloc(sizeof(char *) * filter_count);
-    char **filter_values = malloc(sizeof(char *) * filter_count);
-
-    if (DEBUG_LOG == 1)
-        printf("\n");
-
-    if (filter_count > 0)
-    {
-        for (int i = 0; i < filter_count; i++)
-        {
-            char *filter = strdup(filters[i]);
-
-            if (DEBUG_LOG == 1)
-                printf("\nfilter: %s", filter);
-
-            // Find operator
-            char *operator= NULL;
-            if (strstr(filter, ">="))
-                operator= ">=";
-            else if (strstr(filter, "<="))
-                operator= "<=";
-            else if (strstr(filter, ">"))
-                operator= ">";
-            else if (strstr(filter, "<"))
-                operator= "<";
-            else if (strstr(filter, "="))
-                operator= "=";
-
-            char *header = strtok(filter, "><=");
-            char *value = strtok(NULL, "><=");
-
-            // Initialize to NULL to handle potential allocation failures
-            filter_operators[i] = NULL;
-            filter_values[i] = NULL;
-
-            for (int j = 0; j < csvHeader.column_count; j++)
-            {
-                if (strcmp(header, csvHeader.headers[j]) == 0)
-                {
-                    filter_indice_column[i] = j;
-                    filter_operators[i] = strdup(operator);
-                    filter_values[i] = strdup(value);
-                    if (filter_operators[i] == NULL || filter_values[i] == NULL)
-                    {
-                        free(filter_operators[i]);
-                        free(filter_values[i]);
-                        filter_operators[i] = NULL;
-                        filter_values[i] = NULL;
-                        handleError("Algo aconteceu de errado e não foi possível carregar o CSV, tente novamente!\n");
-                    }
-
-                    if (DEBUG_LOG == 1)
-                    {
-                        printf("\nheader: %s", header);
-                        printf("\noperator: %s", operator);
-                        printf("\nvalue: %s\n", value);
-                    }
-                    break;
-                }
-            }
-            free(filter);
-        }
-
-        freeStringArray(filters);
-
-        if (DEBUG_LOG == 1)
-        {
-            for (int i = 0; i < filter_count; i++)
-            {
-                printf("\nfilter_count: %d", filter_count);
-                printf("\nfilter_indice_column[i]: %d", filter_indice_column[i]);
-                printf("\nfilter_operators[i]: %s", filter_operators[i]);
-                printf("\nfilter_values[i]: %s\n", filter_values[i]);
-                printf("--#--\n\n");
-            }
-        }
-    }
+    CsvFilter csvFilter = processCsvFilters(rowFilterDefinitions, csvHeader);
 
     // Process each row
 
@@ -129,14 +49,14 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
         if (DEBUG_LOG == 1)
             printf("\ni: %d", i);
 
-        for (int j = 0; j < filter_count; j++)
+        for (int j = 0; j < csvFilter.filter_count; j++)
         {
-            int column_filter = filter_indice_column[j];
+            int column_filter = csvFilter.filter_indice_column[j];
             char *value = row[column_filter];
 
-            if (strcmp(filter_operators[j], "=") == 0)
+            if (strcmp(csvFilter.filter_operators[j], "=") == 0)
             {
-                if (strcmp(value, filter_values[j]) == 0)
+                if (strcmp(value, csvFilter.filter_values[j]) == 0)
                 {
                     if (DEBUG_LOG == 1)
                         printf("\n[=] j: %d filter_indice_column: %d value: %s", j, column_filter, value);
@@ -147,16 +67,16 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
                     break;
                 }
             }
-            else if (strcmp(filter_operators[j], ">") == 0)
+            else if (strcmp(csvFilter.filter_operators[j], ">") == 0)
             {
                 // printf("\n____________________");
                 // printf("\nvalue: %s", value);
                 // printf("\nfilter_values: %s", filter_values[j]);
                 // printf("\n____________________\n");
-                if (strcmp(value, filter_values[j]) > 0)
+                if (strcmp(value, csvFilter.filter_values[j]) > 0)
                 {
                     if (DEBUG_LOG == 1)
-                        printf("\n[>] j: %d filter_indice_column: %d value: %s filter_values[j]: %s", j, column_filter, value, filter_values[j]);
+                        printf("\n[>] j: %d filter_indice_column: %d value: %s filter_values[j]: %s", j, column_filter, value, csvFilter.filter_values[j]);
                 }
                 else
                 {
@@ -164,9 +84,9 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
                     break;
                 }
             }
-            else if (strcmp(filter_operators[j], ">=") == 0)
+            else if (strcmp(csvFilter.filter_operators[j], ">=") == 0)
             {
-                if (strcmp(value, filter_values[j]) >= 0)
+                if (strcmp(value, csvFilter.filter_values[j]) >= 0)
                 {
                     if (DEBUG_LOG == 1)
                         printf("\n[>=] j: %d filter_indice_column: %d value: %s", j, column_filter, value);
@@ -177,9 +97,9 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
                     break;
                 }
             }
-            else if (strcmp(filter_operators[j], "<") == 0)
+            else if (strcmp(csvFilter.filter_operators[j], "<") == 0)
             {
-                if (strcmp(value, filter_values[j]) < 0)
+                if (strcmp(value, csvFilter.filter_values[j]) < 0)
                 {
                     if (DEBUG_LOG == 1)
                         printf("\n[<] j: %d filter_indice_column: %d value: %s", j, column_filter, value);
@@ -190,9 +110,9 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
                     break;
                 }
             }
-            else if (strcmp(filter_operators[j], "<=") == 0)
+            else if (strcmp(csvFilter.filter_operators[j], "<=") == 0)
             {
-                if (strcmp(value, filter_values[j]) <= 0)
+                if (strcmp(value, csvFilter.filter_values[j]) <= 0)
                 {
                     if (DEBUG_LOG == 1)
                         printf("\n[<=] j: %d filter_indice_column: %d value: %s", j, column_filter, value);
@@ -250,11 +170,11 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
     }
 
     freeStringArray(csvHeader.headers);
-    freeStringArray(filter_operators);
+    freeStringArray(csvFilter.filter_operators);
     // freeStringArray(lines);
     // freeStringArray(filter_values); // error in big matrix ? free(): invalid pointer \n Aborted (core dumped)
     free(csvSelection.selected_indice_column);
-    free(filter_indice_column);
+    free(csvFilter.filter_indice_column);
 }
 
 // Process CSV data from a file
