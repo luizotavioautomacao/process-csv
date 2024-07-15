@@ -1,4 +1,8 @@
 /src/*
+!/src/*.md
+!/src/*.sh
+!/src/*.c
 !/src/helpers/
 /.vscode
 *.so
+*.csv

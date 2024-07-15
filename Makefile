@@ -17,6 +17,3 @@ logs:
 .PHONY: debug
 debug:
 	docker exec -it libcsv /bin/sh
-
-# docker images
-# docker ps -a

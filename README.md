@@ -78,27 +78,27 @@ header1,header2,header3
 7,8,9
 ```
 
-- **O CSV processado deve ser escrito no stdout**
+- **O CSV processado deve ser escrito no stdout** [v]
 
-- **A primeira linha do CSV sempre será um header**
+- **A primeira linha do CSV sempre será um header** [v]
 
-- **O CSV processado deverá incluir o header do CSV considerando a seleção de coluna**
+- **O CSV processado deverá incluir o header do CSV considerando a seleção de coluna**  [v]
 
-- **A sua implementação deve tratar CSVs com quantidades arbitrárias de caractéres**
+- **A sua implementação deve tratar CSVs com quantidades arbitrárias de caractéres** [?]
 
-- **A sua implementação deve tratar CSVs onde as colunas tem quantidades arbitrárias de caractéres**
+- **A sua implementação deve tratar CSVs onde as colunas tem quantidades arbitrárias de caractéres** [?]
 
-- **Uma string de seleção de colunas vazia é equivalente a selecionar todas as colunas**
+- **Uma string de seleção de colunas vazia é equivalente a selecionar todas as colunas** [v]
 
-- **No mínimo, o candidato deve implementar filtros para maior (>), menor (<) e igual (=)**
+- **No mínimo, o candidato deve implementar filtros para maior (>), menor (<) e igual (=)** [v]
 
-- **As strings de seleção de colunas e filtro sempre terão a mesma ordem que aparecem no CSV**
+- **As strings de seleção de colunas e filtro sempre terão a mesma ordem que aparecem no CSV** [?]
 
     Exemplo:
     - `"header1,header3"` ou `"header1=4\nheader3>3"` &rarr; OK
     - `"header3,header1"` ou `"header3>3\nheader1=4"` &rarr; NÃO OK
 
-- **Vírgulas sempre delimitam uma coluna, aspas não têm nenhuma interpretação especial**
+- **Vírgulas sempre delimitam uma coluna, aspas não têm nenhuma interpretação especial** [v]
 
     Exemplo: No CSV abaixo, o nome da primeira coluna é `'hea"der1'`
 
@@ -107,36 +107,37 @@ header1,header2,header3
     1,2,3
     ```
 
-- **Apenas linhas que condizem com todos os filtros devem ser selecionadas**
+- **Apenas linhas que condizem com todos os filtros devem ser selecionadas** [v]
 
-    Exemplo: Aplicando os filtros `"header1=4\nheader2>3"` e selecionando as colunas header1 e header3. Somente a linha 4,5,6 `(header1 = 4 AND header2 > 3)` deve ser selecionada, pois todas as condições dos filtros devem ser atendidas. Output do filtro abaixo:
+    Exemplo: Aplicando os filtros `"header1=4\nheader2>3"` e selecionando as colunas header1 e header3. 
+    Somente a linha 4,5,6 `(header1 = 4 AND header2 > 3)` deve ser selecionada, pois todas as condições dos filtros devem ser atendidas. Output do filtro abaixo:
 
     ```csv
     header1,header3
     4,6
     ```
 
-- **Nunca serão fornecidos filtros inválidos ou colunas inexistentes**
+- **Nunca serão fornecidos filtros inválidos ou colunas inexistentes** [~]
 
     Exemplo:
     - Coluna inexistente: `"header4"`
     - Filtro inválido: `"header1#2"`
 
-- **Nunca será fornecido mais de 1 filtro por coluna**
+- **Nunca será fornecido mais de 1 filtro por coluna** [~]
 
     Exemplo: Se o filtro for `"header1=2"`, não haverá outro filtro para `"header1"` na mesma operação.
 
-- **O CSV de entrada terá no máximo 256 colunas**
+- **O CSV de entrada terá no máximo 256 colunas** [v]
 
-- **O nome de cada coluna é único**
+- **O nome de cada coluna é único** [v]
 
-- **Os comparadores nos filtros devem seguir a ordem lexicográfica conforme a implementação da [strcmp](https://www.man7.org/linux/man-pages/man3/strcmp.3.html) da stdlibc**
+- **Os comparadores nos filtros devem seguir a ordem lexicográfica conforme a implementação da [strcmp](https://www.man7.org/linux/man-pages/man3/strcmp.3.html) da stdlibc** [v]
 
-- **A arquitetura alvo é x86_64**
+- **A arquitetura alvo é x86_64** [v]
 
-- **Não é permitida a execução de processos externos. Seu código não deve usar chamadas de sistema para executar outros programas**
+- **Não é permitida a execução de processos externos. Seu código não deve usar chamadas de sistema para executar outros programas** [v]
 
-- **Não é permitido o uso de bibliotecas externas para converter o CSV em estruturas de dados intermediárias (libs de lexers e tokenizers podem ser utilizadas)**
+- **Não é permitido o uso de bibliotecas externas para converter o CSV em estruturas de dados intermediárias (libs de lexers e tokenizers podem ser utilizadas)** [v]
 
 
 ## Funcionalidades Bônus
