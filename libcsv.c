@@ -5,27 +5,13 @@
 #include "src/helpers/remove-quotes.h"
 #include "src/helpers/split.h"
 #include "src/helpers/is-array-duplicate.h"
+#include "src/helpers/free-string-array.h"
 
 int DEBUG_LOG = 0;
 void handle_error()
 {
     fprintf(stderr, "Algo aconteceu de errado e não foi possível carregar o CSV, tente novamente!\n");
-    exit(EXIT_FAILURE); // ou retorne um valor de erro, se apropriado
-}
-
-// Helper function to free the memory allocated for a Matrix of string
-void freeStringArray(char **array)
-{
-    if (array == NULL)
-    {
-        return;
-    }
-
-    for (int i = 0; array[i] != NULL; i++)
-    {
-        free(array[i]);
-    }
-    free(array);
+    exit(EXIT_FAILURE); // or return an error value if appropriate
 }
 
 // Process CSV data given as a string
