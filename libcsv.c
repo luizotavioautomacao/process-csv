@@ -6,13 +6,9 @@
 #include "src/helpers/split.h"
 #include "src/helpers/is-array-duplicate.h"
 #include "src/helpers/free-string-array.h"
+#include "src/helpers/handle-error.h"
 
 int DEBUG_LOG = 0;
-void handle_error()
-{
-    fprintf(stderr, "Algo aconteceu de errado e não foi possível carregar o CSV, tente novamente!\n");
-    exit(EXIT_FAILURE); // or return an error value if appropriate
-}
 
 // Process CSV data given as a string
 void processCsv(const char csv[], const char selectedColumns[], const char rowFilterDefinitions[])
@@ -168,7 +164,7 @@ void processCsv(const char csv[], const char selectedColumns[], const char rowFi
                         free(filter_values[i]);
                         filter_operators[i] = NULL;
                         filter_values[i] = NULL;
-                        handle_error();
+                        handleError("Algo aconteceu de errado e não foi possível carregar o CSV, tente novamente!\n");
                     }
 
                     if (DEBUG_LOG == 1)
