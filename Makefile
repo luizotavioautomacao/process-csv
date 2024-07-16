@@ -2,9 +2,13 @@
 up:
 	docker build -t main_image . && docker rm -f main_container && docker run -d --name main_container main_image 
 
-.PHONY: host
-host:
+.PHONY: main
+main:
 	./build.sh && ./main
+
+.PHONY: test_libcsv
+test_libcsv:
+	./build.sh && ./test_libcsv
 
 .PHONY: exec
 exec:
