@@ -34,4 +34,8 @@ entrypoint:
 del:
 	docker container prune -f
 
+.PHONY: delete
+delete:
+	docker rmi $(docker images -q)
+
 
