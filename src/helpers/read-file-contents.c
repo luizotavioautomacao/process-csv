@@ -1,16 +1,28 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
 #include "read-file-contents.h"
 
-extern int DEBUG_LOG; 
+extern int DEBUG_LOG;
 
 char *readFileContents(const char *filePath)
 {
     FILE *file = fopen(filePath, "r");
     if (!file)
     {
-        perror("Failed to open file");
-        return NULL;
+        const char *prefix = "../../";
+        char *fullPath = malloc(strlen(prefix) + strlen(filePath) + 1);
+        strcpy(fullPath, prefix);   // Copy prefix to fullPath
+        strcat(fullPath, filePath); // Concatenates filePath into fullPath
+        
+        file = fopen(fullPath, "r");
+
+        if (!file)
+        {
+            perror("Failed to open file");
+            return NULL;
+        }
     }
 
     // Calculate the number of lines
