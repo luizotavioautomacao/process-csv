@@ -60,6 +60,10 @@ gcc -g -o main src/main.c -L. -lcsv -Wl,-rpath,.
 echo "Clean up object files"
 rm libcsv.o remove-quotes.o split.o is-array-duplicate.o free-string-array.o handle-error.o read-file-contents.o process-csv-lines.o process-csv-headers.o process-csv-selected.o process-csv-filters.o output-csv-headers.o output-csv-values.o builder-free-csv.o
 
+cp libcsv.so /usr/lib/
+chmod +x /usr/lib/libcsv.so
+export LD_LIBRARY_PATH=/usr/lib
+
 # Check if the main file exists before copying it
 if [ -f "/app/main" ]; then
     echo "Copying main..."
