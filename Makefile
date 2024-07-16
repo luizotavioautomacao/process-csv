@@ -26,6 +26,10 @@ logs:
 shell:
 	docker exec -it main_container /bin/sh
 
+.PHONY: entrypoint
+entrypoint:
+	docker run -it --rm --entrypoint /bin/sh main_image
+
 .PHONY: del
 del:
 	docker container prune -f
