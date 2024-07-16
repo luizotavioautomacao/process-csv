@@ -54,5 +54,20 @@ rm libcsv.o remove-quotes.o split.o is-array-duplicate.o free-string-array.o han
 echo "Completing the build.sh ..."
 echo ""
 
-cp /app/test_libcsv /app/test_libcsv
-chmod +x /app/test_libcsv
+# Verificar se o arquivo main existe antes de copiá-lo
+if [ -f "/app/main" ]; then
+    echo "Copying main..."
+    cp /app/main /app/main
+    chmod +x /app/main
+else
+    echo "Warning: File /app/main not found."
+fi
+
+# Verificar se o arquivo test_libcsv existe antes de copiá-lo e definir as permissões
+if [ -f "/app/test_libcsv" ]; then
+    echo "Copying test_libcsv..."
+    cp /app/test_libcsv /app/test_libcsv
+    chmod +x /app/test_libcsv
+else
+    echo "Warning: File /app/test_libcsv not found."
+fi
