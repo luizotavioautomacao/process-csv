@@ -3,7 +3,10 @@ Debugar .so com main.c:
 ```
 cd src
 make up
-```
+```  
+  
+Run compiled main file: `make host`
+
 # Comandos docker:
 - docker images  
 - docker ps -a  
