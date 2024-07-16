@@ -2,6 +2,7 @@
 # Contain the commands necessary to compile the library (.so) and the test_libcsv executable
 
 # cd /app
+apk add --no-cache build-base
 
 echo "Compile remove-quotes.c to a shared object"
 gcc -fPIC -c src/helpers/remove-quotes.c -o remove-quotes.o
@@ -46,7 +47,7 @@ echo "Compile libcsv.c to a shared object"
 gcc -fPIC -c libcsv.c -o libcsv.o
 
 echo "Generate a shared library (libcsv.so)"
-gcc -shared -o libcsv.so libcsv.o remove-quotes.o split.o is-array-duplicate.o free-string-array.o handle-error.o read-file-contents.o process-csv-lines.o process-csv-headers.o process-csv-selected.o process-csv-filters.o output-csv-headers.o output-csv-values.o builder-free-csv.o
+gcc -shared -o libcsv.so -fPIC -m64 libcsv.o remove-quotes.o split.o is-array-duplicate.o free-string-array.o handle-error.o read-file-contents.o process-csv-lines.o process-csv-headers.o process-csv-selected.o process-csv-filters.o output-csv-headers.o output-csv-values.o builder-free-csv.o
 
 # gcc -o test_libcsv test_libcsv.c -L. -lcsv # (test_libcsv is already compiled)
 
