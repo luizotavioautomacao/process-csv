@@ -20,3 +20,14 @@ Run compiled main file: `make host`
 # Git push:
 export LANG=C.UTF-8  
 export LC_ALL=C.UTF-8  
+
+# Ferramentas de depuração  
+## GDB:  
+gdb ./main  
+(gdb) run
+(gdb) bt  
+(gdb) break processCsv  
+(gdb) print csv  
+
+## Valgrind  
+valgrind --leak-check=full ./main  
