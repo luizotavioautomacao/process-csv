@@ -1,6 +1,8 @@
 #!/bin/sh 
 # Contain the commands necessary to compile the library (.so) and the test_libcsv executable
 
+# cd /app
+
 echo "Compile remove-quotes.c to a shared object"
 gcc -fPIC -c src/helpers/remove-quotes.c -o remove-quotes.o
 
@@ -51,9 +53,6 @@ gcc -shared -o libcsv.so libcsv.o remove-quotes.o split.o is-array-duplicate.o f
 echo "Clean up object files"
 rm libcsv.o remove-quotes.o split.o is-array-duplicate.o free-string-array.o handle-error.o read-file-contents.o process-csv-lines.o process-csv-headers.o process-csv-selected.o process-csv-filters.o output-csv-headers.o output-csv-values.o builder-free-csv.o
 
-echo "Completing the build.sh ..."
-echo ""
-
 # Verificar se o arquivo main existe antes de copiá-lo
 if [ -f "/app/main" ]; then
     echo "Copying main..."
@@ -71,3 +70,6 @@ if [ -f "/app/test_libcsv" ]; then
 else
     echo "Warning: File /app/test_libcsv not found."
 fi
+
+echo "Completing the build.sh ..."
+echo ""

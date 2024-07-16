@@ -8,11 +8,15 @@ main:
 
 .PHONY: test_libcsv
 test_libcsv:
-	./build.sh && ./test_libcsv
+	./build.sh && chmod +x ./test_libcsv && ./test_libcsv
 
-.PHONY: exec
-exec:
+.PHONY: exec_main
+exec_main:
 	docker run --rm -d --name main_container main_image /app/main
+
+.PHONY: exec_test_libcsv
+exec_test_libcsv:
+	docker run --rm -d --name main_container main_image /app/test_libcsv
 
 .PHONY: logs
 logs:
